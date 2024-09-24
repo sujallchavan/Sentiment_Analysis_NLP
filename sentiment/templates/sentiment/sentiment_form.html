@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentiment Analysis</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        background: #f5f7fa;
+      }
+
+      .container {
+        width: 50%;
+        padding: 30px;
+        background: #ffffff;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        border-radius: 12px;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      textarea {
+        width: 100%;
+        height: 120px;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        color: #555;
+        outline: none;
+        resize: none;
+        transition: border 0.3s ease;
+        box-sizing: border-box; /* Ensure padding is included in the width */
+      }
+
+
+      textarea:focus {
+        border-color: #4caf50;
+      }
+
+      button {
+        padding: 12px 30px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #45a049;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .slider-container {
+        width: 100%;
+        margin: 55px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .slider-bar {
+        width: 100%;
+        height: 20px;
+        background: linear-gradient(to right, #ff5722, #ffc107, #4caf50);
+        border-radius: 10px;
+        position: relative;
+        box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .slider-pointer {
+        width: 0;
+        height: 0;
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-top: 18px solid black; /* Inverted triangle */
+        position: absolute;
+        top: -20px; /* Adjust for the downward pointing */
+        left: 50%;
+        transform: translateX(-50%);
+        transition: left 0.5s ease;
+      }
+
+      .emoji-row {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 15px;
+      }
+
+      .emoji {
+        font-size: 30px;
+      }
+
+      .sentiment-info {
+        margin-top: 30px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .sentiment-info strong {
+        color: #333;
+        font-weight: 600;
+      }
+
+      .vader-result,
+      .roberta-result {
+        font-size: 1rem;
+        color: #666;
+        margin-top: 10px;
+        line-height: 2;
+        margin-butt
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Sentiment Analysis</h1>
+      <form method="post">
+        {% csrf_token %}
+        <textarea
+          name="text"
+          placeholder="Type your thoughts here... What do you feel today?"
+          required
+        ></textarea>
+        <button type="submit">Analyze Sentiment</button>
+      </form>
+
+      {% if sentiment %}
+      <h2 class="sentiment-info">
+        Sentiment: <strong>{{ sentiment }}</strong>
+      </h2>
+      <p class="vader-result">
+        <strong>Vader Analysis:</strong> {{ vader_result }}
+      </p>
+      <p class="roberta-result">
+        <strong>Roberta Analysis:</strong> {{ roberta_result }}
+      </p>
+
+      <!-- Sentiment slider with pointer -->
+      <div class="slider-container">
+        <div class="slider-bar">
+          <div id="pointer" class="slider-pointer"></div>
+        </div>
+        <div class="emoji-row">
+          <span class="emoji">😡</span>
+          <span class="emoji">😟</span>
+          <span class="emoji">😐</span>
+          <span class="emoji">😊</span>
+          <span class="emoji">😃</span>
+        </div>
+      </div>
+
+      <script>
+        // Get the sentiment score (positive, neutral, negative)
+        let sentiment = "{{ sentiment|lower }}";
+
+        // Move the pointer based on sentiment
+        const pointer = document.getElementById("pointer");
+        if (sentiment === "positive") {
+          pointer.style.left = "85%"; // Move pointer towards green
+        } else if (sentiment === "neutral") {
+          pointer.style.left = "50%"; // Move pointer to yellow (middle)
+        } else if (sentiment === "negative") {
+          pointer.style.left = "15%"; // Move pointer towards red
+        }
+      </script>
+      {% endif %}
+    </div>
+  </body>
+</html>
