@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from nltk.sentiment import SentimentIntensityAnalyzer
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline  # Updated imports
 from scipy.special import softmax
 from googletrans import Translator  # You may need to install this library
 
@@ -12,6 +12,9 @@ MODEL = "cardiffnlp/twitter-roberta-base-sentiment"  # This can be replaced with
 tokenizer = AutoTokenizer.from_pretrained(MODEL)
 model = AutoModelForSequenceClassification.from_pretrained(MODEL)
 translator = Translator()
+
+# Initialize the Hugging Face sentiment-analysis pipeline
+sent_pipeline = pipeline("sentiment-analysis")
 
 def get_vader_sentiment(text):
     """Get VADER sentiment scores for English text."""
@@ -42,6 +45,7 @@ def sentiment_analysis(request):
     sentiment = ''
     vader_result = {}
     roberta_result = {}
+    pipeline_result = {}
     
     if request.method == 'POST':
         text = request.POST.get('text', '').strip()
@@ -52,7 +56,8 @@ def sentiment_analysis(request):
                 'error': 'Please enter some text.',
                 'sentiment': sentiment,
                 'vader_result': vader_result,
-                'roberta_result': roberta_result
+                'roberta_result': roberta_result,
+                'pipeline_result': pipeline_result
             })
 
         try:
@@ -71,6 +76,9 @@ def sentiment_analysis(request):
             # Get sentiment analysis using RoBERTa (Multilingual)
             roberta_result = get_roberta_sentiment(translated_text)
 
+            # Get sentiment analysis using the Hugging Face pipeline
+            pipeline_result = sent_pipeline(translated_text)
+
             # Determine sentiment from the results
             if vader_result.get('compound', 0) > 0 or roberta_result['roberta_pos'] > max(roberta_result['roberta_neg'], roberta_result['roberta_neu']):
                 sentiment = 'Positive'
@@ -84,12 +92,14 @@ def sentiment_analysis(request):
                 'error': f'An error occurred: {str(e)}',
                 'sentiment': sentiment,
                 'vader_result': vader_result,
-                'roberta_result': roberta_result
+                'roberta_result': roberta_result,
+                'pipeline_result': pipeline_result
             })
 
     return render(request, 'sentiment/sentiment_form.html', {
         'sentiment': sentiment,
         'vader_result': vader_result,
         'roberta_result': roberta_result,
+        'pipeline_result': pipeline_result,
         'error': ''
     })
