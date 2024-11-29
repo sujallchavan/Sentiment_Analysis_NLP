@@ -50,7 +50,7 @@ def sentiment_analysis(request):
     if request.method == 'POST':
         text = request.POST.get('text', '').strip()
         
-        # Validate input
+       
         if not text:
             return render(request, 'sentiment/sentiment_form.html', {
                 'error': 'Please enter some text.',
