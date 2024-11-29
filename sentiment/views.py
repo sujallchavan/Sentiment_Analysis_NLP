@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from nltk.sentiment import SentimentIntensityAnalyzer
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline  # Updated imports
+# from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline  # Updated imports
 from scipy.special import softmax
 from googletrans import Translator  # You may need to install this library
 
